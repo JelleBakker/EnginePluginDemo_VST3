@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ "*" ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  ci:
+    runs-on: ${{ matrix.target }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [ "macos-12", "macos-13", "macos-14", "windows-2019", "windows-2022" ]
+        config: [ "Debug", "Release" ]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Build
+        run: |
+          mkdir build
+          cd build
+          cmake ../tracktion_engine -DCMAKE_BUILD_TYPE=${{ matrix.config }}
+          cmake --build . --config ${{ matrix.config }} --target EngineInPluginDemo_VST3
